@@ -1,100 +1,86 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    
-    <meta name="google-site-verification" content="-joQiLfLwI2RWAIi0FjHw7RACmL2AlNMEiQdBScm9V4" />
-    
-    <title>Y-Market | سوق ياسين الذكي</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-
-    <style>
-        :root { --main: #ff6b1a; --bg: #fff5f0; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 0; }
-        header { background: var(--main); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
-        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
-        .upload-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; border-top: 5px solid var(--main); }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
-        .btn-post { background: var(--main); color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; font-size: 18px; cursor: pointer; font-weight: bold; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; }
-        .card img { width: 100%; height: 200px; object-fit: cover; }
-        .card-info { padding: 15px; }
-        .price { color: #e65a00; font-size: 20px; font-weight: bold; margin: 10px 0; }
-        .wa-btn { display: block; text-align: center; background: #25d366; color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-weight: bold; }
-        .login-btn { background: white; color: var(--main); border: none; padding: 8px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Y Market</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 <body>
 
-<header>
-    <div style="font-size: 22px; font-weight: bold;">🔥 Y-Market</div>
-    <div id="authBox"><button class="login-btn" onclick="login()">تسجيل دخول</button></div>
-</header>
-
-<div class="container">
-    <div class="upload-card" id="formBox" style="display:none;">
-        <h3 style="text-align:center; color:var(--main);">نشر منتج جديد 🍊</h3>
-        <input id="pName" placeholder="اسم المنتج" type="text"/>
-        <input id="pPrice" placeholder="السعر" type="number"/>
-        <input id="pWA" placeholder="رقم الواتساب (بدون أصفار)" type="text"/>
-        <input id="pImg" placeholder="رابط صورة المنتج" type="text"/>
-        <button class="btn-post" onclick="upload()">نشر في السوق الآن</button>
+    <div id="auth-section">
+        <button id="login-btn">تسجيل الدخول باستخدام جوجل</button>
+        <button id="logout-btn" style="display:none;">تسجيل الخروج</button>
     </div>
-    <div class="grid" id="marketGrid">جاري تحميل المنتجات...</div>
-</div>
 
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyBD1DXL89fZc-ntRWsJ6SKaTaN8R-onP28",
-        authDomain: "yassien-e9eb6.firebaseapp.com",
-        projectId: "yassien-e9eb6",
-        storageBucket: "yassien-e9eb6.appspot.com",
-        messagingSenderId: "613557013572",
-        appId: "1:613557013572:web:fa5c08beca7c045470011"
-    };
+    <div id="admin-panel" style="display:none;">
+        <h3>لوحة التحكم (إضافة منتج)</h3>
+        <input type="text" id="prod-name" placeholder="اسم المنتج">
+        <input type="number" id="prod-price" placeholder="السعر">
+        <button id="add-btn">نشر المنتج</button>
+    </div>
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const auth = firebase.auth();
+    <div id="products-list">
+        </div>
 
-    function login() { 
+    <script>
+        // إعدادات فايربيز المظبوطة من صورتك
+        const firebaseConfig = {
+            apiKey: "AIzaSyBDl0XL89fZc-ntRWsJ6SKaTaN8R-onP28",
+            authDomain: "yassien-e9eb6.firebaseapp.com",
+            projectId: "yassien-e9eb6",
+            storageBucket: "yassien-e9eb6.firebasestorage.app",
+            messagingSenderId: "613557013572",
+            appId: "1:613557013572:web:fa5c08bece7c0454780011",
+            measurementId: "G-6SGL8DR2TB"
+        };
+
+        // تشغيل فايربيز
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithRedirect(provider).catch(err => alert("خطأ: " + err.message));
-    }
 
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            document.getElementById('authBox').innerHTML = `<img src="${user.photoURL}" style="width:35px; border-radius:50%; border:2px solid white;"/>`;
-            document.getElementById('formBox').style.display = 'block';
-        }
-        loadProducts();
-    });
+        // أزرار التحكم
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const adminPanel = document.getElementById('admin-panel');
 
-    async function upload() {
-        const n = document.getElementById('pName').value, p = document.getElementById('pPrice').value, w = document.getElementById('pWA').value, i = document.getElementById('pImg').value;
-        if(!n || !p || !w || !i) return alert("املأ البيانات!");
-        try {
-            await db.collection("products").add({ name: n, price: p, whatsapp: w, image: i, seller: auth.currentUser.displayName, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-            alert("تم النشر! ✅");
-            location.reload();
-        } catch (e) { alert(e.message); }
-    }
+        // تسجيل الدخول (استخدام Redirect عشان الموبايل)
+        loginBtn.onclick = () => auth.signInWithRedirect(provider);
 
-    function loadProducts() {
-        db.collection("products").orderBy("createdAt", "desc").onSnapshot(snap => {
-            let html = "";
-            snap.forEach(doc => {
-                const d = doc.data();
-                html += `<div class="card"><img src="${d.image}" onerror="this.src='https://via.placeholder.com/300x200'"><div class="card-info"><h4>${d.name}</h4><p class="price">${d.price} ج.م</p><a class="wa-btn" href="https://wa.me/2${d.whatsapp}" target="_blank">واتساب</a></div></div>`;
-            });
-            document.getElementById('marketGrid').innerHTML = html || "<p>السوق فاضي حالياً.</p>";
+        // مراقبة حالة المستخدم
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                console.log("تم تسجيل الدخول:", user.displayName);
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'block';
+                adminPanel.style.display = 'block';
+            } else {
+                loginBtn.style.display = 'block';
+                logoutBtn.style.display = 'none';
+                adminPanel.style.display = 'none';
+            }
         });
-    }
-</script>
+
+        logoutBtn.onclick = () => auth.signOut();
+
+        // إضافة منتج
+        document.getElementById('add-btn').onclick = async () => {
+            const name = document.getElementById('prod-name').value;
+            const price = document.getElementById('prod-price').value;
+            if(name && price) {
+                await db.collection('products').add({
+                    name: name,
+                    price: price,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("تمت إضافة المنتج بنجاح!");
+                location.reload();
+            }
+        };
+    </script>
 </body>
 </html>
