@@ -64,7 +64,7 @@
 
     function login() { 
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch(err => alert("خطأ: " + err.message));
+        auth.signInWithRedirect(provider).catch(err => alert("خطأ: " + err.message));
     }
 
     auth.onAuthStateChanged(user => {
